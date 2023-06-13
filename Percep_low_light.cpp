@@ -68,25 +68,25 @@ Percep_low_light::~Percep_low_light()
 cv::Mat Percep_low_light::converto_Mat(QString fullPath)
 {   
     //two operations : 1.imread for qstring 2.RGB->BGR//value type:32FC3
-    cv::Mat exrimage = cv::imread(fullPath.toStdString(), cv::IMREAD_ANYCOLOR | cv::IMREAD_ANYDEPTH);
-	cv::Mat inputimage;
-	double minVal, maxVal;
-	cv::minMaxLoc(exrimage, &minVal, &maxVal); //find minimum and maximum intensities
-	//exrimage.convertTo(exrimage, CV_8UC3, 1.0 / (maxVal - minVal), -minVal * 1.0 / (maxVal - minVal)); //apply linear transformation
-	exrimage = (exrimage - minVal) / (maxVal - minVal);
-	tonemapMats_.inputImage = new cv::Mat(exrimage.rows, exrimage.cols, CV_8UC3);
-	exrimage.convertTo(*tonemapMats_.inputImage, CV_8UC3, 255.0 / 1); // Assuming your .exr image data is normalized between 0 and 1. If not, replace 1 with maximum value in your exr image.
-	inputimage = *tonemapMats_.inputImage;
-	inputimage.convertTo(*tonemapMats_.hdrImage, CV_32FC3, tonemapVals_.exposure, 0.0);
+ //   cv::Mat exrimage = cv::imread(fullPath.toStdString(), cv::IMREAD_ANYCOLOR | cv::IMREAD_ANYDEPTH);
+	//cv::Mat inputimage;
+	//double minVal, maxVal;
+	//cv::minMaxLoc(exrimage, &minVal, &maxVal); //find minimum and maximum intensities
+	////exrimage.convertTo(exrimage, CV_8UC3, 1.0 / (maxVal - minVal), -minVal * 1.0 / (maxVal - minVal)); //apply linear transformation
+	//exrimage = (exrimage - minVal) / (maxVal - minVal);
+	//tonemapMats_.inputImage = new cv::Mat(exrimage.rows, exrimage.cols, CV_8UC3);
+	//exrimage.convertTo(*tonemapMats_.inputImage, CV_8UC3, 255.0 / 1); // Assuming your .exr image data is normalized between 0 and 1. If not, replace 1 with maximum value in your exr image.
+	//inputimage = *tonemapMats_.inputImage;
+	//inputimage.convertTo(*tonemapMats_.hdrImage, CV_32FC3, tonemapVals_.exposure, 0.0);
 	//*(tonemapMats_.hdrImage) = exrimage;
 	//*(tonemapMats_.inputImage) = exrimage;
     //cv::cvtColor(exrimage, *(tonemapMats_.hdrImage), cv::COLOR_BGR2RGB);
 	 
 	//if the input is a .png/ldr image
-	/*cv::Mat inputimage = cv::imread(fullPath.toStdString(), cv::IMREAD_COLOR);
+	cv::Mat inputimage = cv::imread(fullPath.toStdString(), cv::IMREAD_COLOR);
 	tonemapMats_.inputImage = new cv::Mat(inputimage.rows, inputimage.cols, CV_8UC3);
 	*tonemapMats_.inputImage = inputimage;
-	inputimage.convertTo(*tonemapMats_.hdrImage, CV_32FC3, tonemapVals_.exposure, 0.0);*/
+	inputimage.convertTo(*tonemapMats_.hdrImage, CV_32FC3, tonemapVals_.exposure, 0.0);
 
     // note: if we need to process tone mapping on non-exr file, it needs to be extended, to scale ldr to hdr range.
     return *(tonemapMats_.hdrImage);
@@ -327,7 +327,7 @@ void Percep_low_light::tonemapping4lms(cv::Mat* img)
 		cv::Mat outputexr;
 		cv::cvtColor(output, outputexr, cv::COLOR_BGR2RGB);
 		cv::imwrite("./BeforeDurandTonemapping.exr", outputexr);
-		//cv::Mat beforeDurandExr = cv::imread("./BeforeDurandTonemapping.exr", cv::IMREAD_ANYCOLOR | cv::IMREAD_ANYDEPTH);
+		cv::Mat beforeDurandExr = cv::imread("./BeforeDurandTonemapping.exr", cv::IMREAD_ANYCOLOR | cv::IMREAD_ANYDEPTH);
 		cv::Ptr<cv::xphoto::TonemapDurand> durandTMO = cv::xphoto::createTonemapDurand();
 		durandTMO->setGamma(2.2f);//2.2
 		durandTMO->setSigmaSpace(0.02 * std::min(output.cols, output.rows));//0.02
@@ -336,7 +336,7 @@ void Percep_low_light::tonemapping4lms(cv::Mat* img)
 		durandTMO->setSaturation(1.0f);
 		//apply Durand tone mapping
 		cv::Mat afterDurandLdr;
-		durandTMO->process(output, afterDurandLdr);
+		durandTMO->process(beforeDurandExr, afterDurandLdr);
 		afterDurandLdr *= 255;
 		afterDurandLdr.convertTo(afterDurandLdr, CV_8UC3);
 		cv::imwrite("./AfterDurandTonemapping.ppm", afterDurandLdr);

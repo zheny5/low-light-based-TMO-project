@@ -56,7 +56,7 @@ ImageViewer::ImageViewer(QWidget* parent)
  */
 void ImageViewer::loadFile()
 {
-    QFileDialog dialog(this, "Open Image", NULL, "Image Files (*.png) \n Image Files (*.bmp *.jpg) \n HDR Image Files (*.exr)"); // Priority on bmp format
+    QFileDialog dialog(this, "Open Image", NULL, "Image Files (*.png) \n Image Files (*.bmp *.jpg) \n HDR Image Files (*.exr *ppm)"); // Priority on bmp format
     if (dialog.exec() != QDialog::Accepted)
     {
         return;
@@ -179,7 +179,7 @@ void ImageViewer::displayTonemapped(QString fullPath, std::string method)
         pllight.purkinje(pllight.tonemapMats_.LMtx, pllight.tonemapMats_.MMtx, pllight.tonemapMats_.SMtx, pllight.tonemapMats_.RMtx, pllight.tonemapMats_.lms, pllight.tonemapMats_.blend, &pllight.tonemapVals_);
         pllight.lms2display(pllight.tonemapMats_.lms, pllight.tonemapMats_.lms2displayOutput);
         pllight.tonemapping4lms(pllight.tonemapMats_.lms2displayOutput);
-        cv::Mat reduceRangeInput = cv::imread("AfterDurandTonemapping.ppm", 1);
+        cv::Mat reduceRangeInput = cv::imread("./AfterDurandTonemapping1.png", 1);
         //cv::Mat reduceRangeInput = cv::imread("D:/Research/ToneMap/Code/Perceptually based tone mapping for low-light conditions/a42-kirk/LOWLIGHT_LINUX/LOWLIGHT_LINUX/src/images/AfterDurandTonemapping.ppm", 1);
         pllight.reduceRange(&reduceRangeInput, pllight.tonemapMats_.blend, reduceRangeInput.rows, reduceRangeInput.cols, "./output.png", *pllight.tonemapMats_.inputImage);
     }
@@ -211,7 +211,7 @@ void ImageViewer::qtdisplayImgTest()
 }
 void ImageViewer::qtdisplayImgResult()
 {
-    cv::Mat image1 = cv::imread("./AfterDurandTonemapping.ppm");
+    cv::Mat image1 = cv::imread("./Left-An-HDR-night-scene-with-no-tone-mapping-featuring-UC-Berkeleys-Sather-Tower.ppm");
     //cv::Mat image1 = cv::imread("./BeforeDurandTonemapping.exr", cv::IMREAD_ANYCOLOR | cv::IMREAD_ANYDEPTH);
     QImage image1_beforetmo = mat2qim(image1);
     ui.label->setPixmap(QPixmap::fromImage(image1_beforetmo));
